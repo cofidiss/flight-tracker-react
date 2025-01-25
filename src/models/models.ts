@@ -10,7 +10,6 @@ export interface SidebarProps {
   onClose: () => void;
 }
 
-<<<<<<< HEAD
 // FlightData.ts
 export interface FlightData {
   data: FlightDataItem[];
@@ -34,5 +33,3 @@ export interface FlightDataItem {
   destinationIcao: string; // "destIata" mapped to "destinationIcao"
   estimatedArrival: string;
 }
-=======
->>>>>>> 08d9210376ffc6e992d3a6c1efc4514bef91438a
