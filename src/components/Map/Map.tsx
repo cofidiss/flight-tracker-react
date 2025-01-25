@@ -1,107 +1,163 @@
-<<<<<<< HEAD
-import React, { useState,useEffect } from 'react';
-=======
-import React, { useState } from 'react';
->>>>>>> 08d9210376ffc6e992d3a6c1efc4514bef91438a
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { useState, useEffect, useContext, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import Navbar from '../Navbar/Navbar';
 import Sidebar from '../Sidebar/Sidebar';
 import BottomMenu from '../BottomMenu/BottomMenu';
-<<<<<<< HEAD
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import FlightMarker from './FlightMarker';
-import { FlightData } from '../../models/models';
+import { FlightCoordinateRangeFilter, FlightData } from '../../models/models';
+import { AppContext } from '../../contexts/AppContext';
+import { Map } from 'leaflet';
 
 const MapComponent: React.FC = () => {
+  const mapRef = useRef<L.Map | null>(null);
+
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [flights, setFlights] = useState<FlightData>();
-=======
+  const [flights, setFlights] = useState<FlightData | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const {  userRole,principalName,setPrincipalName } = useContext(AppContext);
+  const baseUrl = process.env.REACT_APP_BASE_URL;
+  
+  const stompClientRef = useRef<Client | null>(null);
 
-const MapComponent: React.FC = () => {
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
->>>>>>> 08d9210376ffc6e992d3a6c1efc4514bef91438a
 
-  const handleMenuClick = () => {
-    setSidebarOpen(true);
-  };
 
-  const handleCloseSidebar = () => {
-    setSidebarOpen(false);
-  };
+  // İlk useEffect: stompClient'ı oluştur ve bağlantıyı etkinleştir
 
-<<<<<<< HEAD
   useEffect(() => {
-    const session = generateSessionId();
-
-    const socketUrl = 'http://localhost:8080/ws';
+    const socketUrl = `${baseUrl}/ws`;
     const socket = new SockJS(socketUrl);
     const stompClient = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
+      
     });
+console.log("socketUrl" + socketUrl);
+    stompClientRef.current = stompClient;
 
-    stompClient.onConnect = (frame) => {
-      console.log('Connected: ', frame);
+    stompClient.onConnect = () => {
 
-      stompClient.publish({
-        destination: '/app/live',
-        body: session,
+      console.log("Connected to WebSocket");
+
+      console.log("stompClient.activate");
+
+  
+      // getSessionIdiçin abone ol
+      stompClient.subscribe("/user/topic/getSessionId", (messageOutput) => {
+        try {
+          console.log("stompClient. getSessionId" + messageOutput.body  );
+         setPrincipalName(messageOutput.body);
+          
+        } catch (error) {
+          console.error("getSessionId error:", error, messageOutput.body);
+        }
+        stompClient.unsubscribe("/topic/getSessionId")
       });
 
-      stompClient.subscribe(`/topic/${session}`, (messageOutput) => {
-        const flightData = JSON.parse(messageOutput.body);
-        console.log(flightData);
-        setFlights(flightData);
+
+        
+ 
+
+
+      // Live flight verileri için abone ol
+      stompClient.subscribe("/user/topic/liveflight", (messageOutput) => {
+        try {
+          console.log("stompClient.subscribe");
+          const flightData = JSON.parse(messageOutput.body);
+          console.log("Live flight data:", flightData);
+          setFlights(flightData);
+        } catch (error) {
+          console.error("JSON parse error:", error, messageOutput.body);
+        }
       });
+
+         // İlk filtre gönderimi
+         if (mapRef.current) {
+          let curentBounds = mapRef.current.getBounds();
+          console.log("curentBounds",curentBounds);
+          sendflightCoordinateRangeFilterData(stompClient, {latitudeMax: curentBounds.getNorthEast().lat, 
+            latitudeMin: curentBounds.getSouthWest().lat,
+            longitudeMax: curentBounds.getNorthEast().lng,
+            longitudeMin: curentBounds.getSouthWest().lng});
+        }
+        stompClient.publish({
+          destination: '/app/getSessionId'
+        });
+    
     };
-
     stompClient.activate();
-
     return () => {
+      console.log("Disconnected from WebSocket");
       stompClient.deactivate();
     };
-  }, []);
+  }, []); 
 
-  function generateSessionId() {
-    return Math.random().toString(36).substr(2, 9);
+
+
+
+  function sendflightCoordinateRangeFilterData(stompClient: Client | null, filter: FlightCoordinateRangeFilter | null) {
+    if ( filter == null || stompClient == null || stompClient.connected == false) {
+      return;}
+    console.log("sendflightCoordinateRangeFilterData");
+    stompClient.publish({
+      destination: '/app/live',
+      body: JSON.stringify( filter )
+    });
   }
-debugger;
-=======
->>>>>>> 08d9210376ffc6e992d3a6c1efc4514bef91438a
+
+  const handleBoundsChange = (bounds: L.LatLngBounds) => {
+    const latitudeMax = bounds.getNorthEast().lat;  // Maksimum enlem
+    const latitudeMin = bounds.getSouthWest().lat;  // Minimum enlem
+    const longitudeMax = bounds.getNorthEast().lng; // Maksimum boylam
+    const longitudeMin = bounds.getSouthWest().lng; // Minimum boylam
+    
+    console.log("Latitude Max:", latitudeMax);
+    console.log("Latitude Min:", latitudeMin);
+    console.log("Longitude Max:", longitudeMax);
+    console.log("Longitude Min:", longitudeMin);
+    sendflightCoordinateRangeFilterData(stompClientRef.current, {latitudeMax: latitudeMax, 
+      latitudeMin: latitudeMin,
+       longitudeMax: longitudeMax,
+        longitudeMin: longitudeMin});
+
+  };
+
+  function MapEvents() {
+    const map = useMap();
+    useEffect(() => {
+      const updateBounds = () => handleBoundsChange(map.getBounds());
+      map.on('moveend', updateBounds);
+      return () => {
+        map.off('moveend', updateBounds);
+      };
+    }, [map]);
+    return null;
+  }
+
   return (
-    <div>
-      <Navbar />
-      <Sidebar isOpen={isSidebarOpen} onClose={handleCloseSidebar} />
-      <BottomMenu onMenuClick={handleMenuClick} />
+    <div className='asde'>
+      {userRole == "PremiumUser" ? (   <BottomMenu onMenuClick={()=> setSidebarOpen(true)} />) : null}
+   < Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
+
       <MapContainer
         center={[42.3, 32.2]}
         zoom={8}
         scrollWheelZoom={true}
         style={{ height: '100vh', width: '100%' }}
+        ref={mapRef}
       >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-<<<<<<< HEAD
-         {flights?.data.map((flight) => (
+
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <MapEvents />
+        {flights?.data.map((flight) => (
           <FlightMarker key={flight.flightId} flightDataItem={flight} />
         ))}
-=======
-        <Marker position={[42.3, 32.2]}>
-          <Popup>
-            Bu benim konumum!
-          </Popup>
-        </Marker>
->>>>>>> 08d9210376ffc6e992d3a6c1efc4514bef91438a
+
       </MapContainer>
     </div>
   );
 };
 
-<<<<<<< HEAD
 export default MapComponent;
-=======
-export default MapComponent;
->>>>>>> 08d9210376ffc6e992d3a6c1efc4514bef91438a

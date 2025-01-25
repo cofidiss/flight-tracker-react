@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 
 
 export interface BottomMenuProps {
@@ -10,7 +11,6 @@ export interface SidebarProps {
   onClose: () => void;
 }
 
-<<<<<<< HEAD
 // FlightData.ts
 export interface FlightData {
   data: FlightDataItem[];
@@ -34,5 +34,60 @@ export interface FlightDataItem {
   destinationIcao: string; // "destIata" mapped to "destinationIcao"
   estimatedArrival: string;
 }
-=======
->>>>>>> 08d9210376ffc6e992d3a6c1efc4514bef91438a
+export type globalCss ={
+  componentBackgroundColor:string
+    }
+export interface AppContextType {
+  loading: boolean;
+  startLoading: () => void;
+  stopLoading: () => void;
+  setModal1State: (modalProps: Omit<CustomModalProps, 'onClose'>) => void; // Method to set modal state
+  setModal2State: (modalProps: Omit<CustomModalProps, 'onClose'>) => void; // Method to set modal state
+  refreshNavbar:() => void;
+  setIsLoggedIn:(param:boolean)=>void;
+  isLoggedIn:boolean;
+  globalCss:globalCss; 
+  userRole:string | null;
+  setUserRole: React.Dispatch<React.SetStateAction<string | null>>;
+  principalName:string | null;
+  setPrincipalName: React.Dispatch<React.SetStateAction<string | null>>;
+};
+export interface CustomModalProps {
+  isOpen: boolean;
+  title?: string;
+  message?: string;
+  okButtonText?: string;
+  okButtonClick?: () => void;
+  leftButtonText?: string;
+  leftButtonClick?: () => void;
+  rightButtonText?: string;
+  rightButtonClick?: () => void;
+  children? :ReactNode;
+}
+
+export type FlightCustomFilter =  {
+  altitudeMin?: number,
+          altitudeMax?: number,
+          groundSpeedMin?: number,
+          groundSpeedMax?: number,
+          category?: string ,
+          principalName: string | null
+        }  ;
+
+        export type FlightCoordinateRangeFilter =  {
+       
+          latitudeMin?: number,
+                  latitudeMax?: number,
+                  longitudeMin?: number,
+                  longitudeMax?: number
+      
+                }  ;
+        
+        export type formState = {
+          altitudeMin?: number;
+          altitudeMax?: number;
+          groundSpeedMin?: number;
+          groundSpeedMax?: number;
+          category?: string;
+          sessionId?: string;
+        }

@@ -1,19 +1,20 @@
 import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { FlightDataItem } from '../../models/models';
-
+import helicopter from '../../assets/icons/helicopter.png';
+import airplane from '../../assets/icons/airplane.png';
 // Uçuş verisi tipi
 
 
 // Uçak ve helikopter ikonlarını tanımla
 const airplaneIcon = new L.Icon({
-  iconUrl: '/icons/airplane.png',
+  iconUrl:airplane,
   iconSize: [40, 40],
   iconAnchor: [20, 20],
 });
 
 const helicopterIcon = new L.Icon({
-  iconUrl: '/icons/helicopter.png',
+  iconUrl: helicopter,
   iconSize: [40, 40],
   iconAnchor: [20, 20],
 });

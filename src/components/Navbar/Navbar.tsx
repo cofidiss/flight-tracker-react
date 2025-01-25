@@ -1,17 +1,132 @@
-import React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AppContext } from '../../contexts/AppContext';
+
+import { Settings as SettingsIcon, Login as LoginIcon, PersonAdd as PersonAddIcon, AccountCircle as AccountCircleIcon, ExitToApp as ExitToAppIcon } from "@mui/icons-material";
+
+import { AppBar, Toolbar, Typography, IconButton, Button, Badge, Menu, MenuItem} from '@mui/material';
+
 
 const Navbar: React.FC = () => {
+  const navigate = useNavigate();
+  const { setIsLoggedIn, isLoggedIn } = useContext(AppContext);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  useEffect(() => {
+    const isAuthenticated = document.cookie.includes('userId');
+    setIsLoggedIn(isAuthenticated);
+  }, []);
+  const handleMenuOpen = (event: React.MouseEvent<HTMLDivElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleProfileClick = () => {
+    navigate('/profile');
+    handleMenuClose();
+  };
+
+  const handleLogoutClick = () => {
+    document.cookie = "FooRestaurantApiAuth=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    setIsLoggedIn(false);
+    navigate('/login');
+    handleMenuClose();
+  };
   return (
-    <AppBar position="fixed" sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}>
-      <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'black' }}>
-          Harita Uygulaması
-        </Typography>
-      </Toolbar>
-    </AppBar>
+    <AppBar position="static" sx={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+
+    <Toolbar>
+      <Typography variant="h6" sx={{ flexGrow: 1 }}>
+        Flight Tracker
+      </Typography>
+      {isLoggedIn ? (
+        <>
+
+          {/* Settings Icon with Dropdown Menu */}
+          <div
+            onMouseEnter={handleMenuOpen} // Open on hover
+            onMouseLeave={handleMenuClose} // Close when mouse leaves
+          >
+            <IconButton color="inherit" sx={anchorEl && {
+  border: '2px solid white', // White border
+  borderRadius: '4px', // Rounded corners
+  transform: 'scale(1.05)', // Increased size
+  transition: 'transform 0.3s ease, border 0.3s ease', // Smooth transition for border and transform
+}}>
+              <SettingsIcon />
+            </IconButton>
+            <Menu
+              id="settings-menu"
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              MenuListProps={{
+                onMouseLeave: handleMenuClose, // Close when mouse leaves the menu
+              }}
+              PaperProps={{
+                elevation: 3,
+                sx: {
+                  borderRadius: '10px',
+                  padding: '5px 0',
+                  minWidth: '150px',
+                  '& .MuiMenuItem-root': {
+                    display: 'flex', // Align icons and text
+                    alignItems: 'center', // Center items vertically
+                    padding: '10px 20px',
+                    '&:hover': {
+                      backgroundColor: '#1976d2', // Change background on hover
+                      color: 'white', // Change text color on hover
+                      transition: 'background-color 0.3s ease', // Smooth transition effect
+                    },
+                  },
+                },
+              }}
+            >
+              <MenuItem onClick={handleProfileClick}>
+                <AccountCircleIcon sx={{ marginRight: '10px' }} /> Profile
+              </MenuItem>
+              <MenuItem onClick={handleLogoutClick}>
+                <ExitToAppIcon sx={{ marginRight: '10px' }} /> Log Out
+              </MenuItem>
+            </Menu>
+          </div>
+        </>
+      ) : (
+        <>
+          <Button 
+            color="inherit" 
+            onClick={() => navigate('/login')} 
+            startIcon={<LoginIcon />}
+            sx={{
+              '&:hover': {
+                border: '2px solid white', // White border on hover
+                borderRadius: '4px', // Optional: give it rounded corners
+                transform: 'scale(1.05)', // Slightly increase size on hover
+              },
+            }}
+          >
+            Login
+          </Button>
+          <Button 
+            color="inherit" 
+            onClick={() => navigate('/signup')} 
+            startIcon={<PersonAddIcon />}
+            sx={{
+              '&:hover': {
+                border: '2px solid white', // White border on hover
+                borderRadius: '4px', // Optional: give it rounded corners
+                transform: 'scale(1.05)', // Slightly increase size on hover
+              },
+            }}
+          >
+            Signup
+          </Button>
+        </>
+      )}
+    </Toolbar>
+  </AppBar>
   );
 };
 
