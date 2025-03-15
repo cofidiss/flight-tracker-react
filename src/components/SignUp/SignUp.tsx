@@ -16,10 +16,12 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { AppContext } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { SignUpFormAction, SignUpFormState } from '../../models/models';
+import { SignUpFormAction, SignUpFormState, UserRole } from '../../models/models';
 
 const Signup: React.FC = () => {
-  const initialState: SignUpFormState = {
+ 
+
+  const initialState:  SignUpFormState = {
     username: '',
     password: '',
     confirmPassword: '',
@@ -34,10 +36,7 @@ const Signup: React.FC = () => {
   const { startLoading, stopLoading, setIsLoggedIn } = useContext(AppContext);
   const [roleLov, setRoleLov] = useState<UserRole[]>([]);
 
-  function formReducer(
-    state: SignUpFormState,
-    action: SignUpFormAction,
-  ): SignUpFormState {
+  function formReducer(state:  SignUpFormState, action: SignUpFormAction):  SignUpFormState {
     switch (action.type) {
       case 'SET_FIELD':
         if (action.field === 'phone' && !/^\d+$/.test(action.value)) {
