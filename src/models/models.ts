@@ -79,11 +79,31 @@ export type FlightCoordinateRangeFilter = {
   longitudeMax?: number;
 };
 
-export type formState = {
+export type SideBarformState = {
   altitudeMin?: number;
   altitudeMax?: number;
   groundSpeedMin?: number;
   groundSpeedMax?: number;
   category?: string;
   sessionId?: string;
+};
+
+export type SignUpFormState = {
+  username: string;
+  password: string;
+  confirmPassword: string;
+  address: string;
+  phone: string;
+  error: string;
+  roleId?: number;
+};
+
+export type SignUpFormAction =
+  | { type: 'SET_FIELD'; field: string; value: string }
+  | { type: 'SET_ERROR'; error: string }
+  | { type: 'CLEAR_ERROR' };
+
+export type UserRole = {
+  id: number;
+  name: string;
 };

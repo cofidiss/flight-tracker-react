@@ -16,24 +16,10 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { AppContext } from '../../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
+import { SignUpFormAction, SignUpFormState } from '../../models/models';
 
 const Signup: React.FC = () => {
-  type FormState = {
-    username: string;
-    password: string;
-    confirmPassword: string;
-    address: string;
-    phone: string;
-    error: string;
-    roleId?: number;
-  };
-
-  type FormAction =
-    | { type: 'SET_FIELD'; field: string; value: string }
-    | { type: 'SET_ERROR'; error: string }
-    | { type: 'CLEAR_ERROR' };
-
-  const initialState: FormState = {
+  const initialState: SignUpFormState = {
     username: '',
     password: '',
     confirmPassword: '',
@@ -42,16 +28,16 @@ const Signup: React.FC = () => {
     error: '',
     roleId: undefined,
   };
-  type Role = {
-    id: number;
-    name: string;
-  };
+
   const navigate = useNavigate();
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const { startLoading, stopLoading, setIsLoggedIn } = useContext(AppContext);
-  const [roleLov, setRoleLov] = useState<Role[]>([]);
+  const [roleLov, setRoleLov] = useState<UserRole[]>([]);
 
-  function formReducer(state: FormState, action: FormAction): FormState {
+  function formReducer(
+    state: SignUpFormState,
+    action: SignUpFormAction,
+  ): SignUpFormState {
     switch (action.type) {
       case 'SET_FIELD':
         if (action.field === 'phone' && !/^\d+$/.test(action.value)) {

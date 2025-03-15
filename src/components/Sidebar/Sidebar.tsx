@@ -1,8 +1,5 @@
 import React, { useContext, useReducer } from 'react';
 import Drawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
 import Button from '@mui/material/Button';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
@@ -11,14 +8,14 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import {
   FlightCustomFilter,
-  formState,
+  SideBarformState,
   SidebarProps,
 } from '../../models/models';
 import { AppContext } from '../../contexts/AppContext';
 import InputAdornment from '@mui/material/InputAdornment';
 
 // Define the initial form state
-const initialState = {
+const initialState: SideBarformState = {
   altitudeMin: 1000,
   altitudeMax: 40000,
   groundSpeedMin: 200,
@@ -27,7 +24,7 @@ const initialState = {
 };
 
 // Define the reducer function
-const formReducer = (state: formState, action: any) => {
+const formReducer = (state: SideBarformState, action: any) => {
   switch (action.type) {
     case 'SET_ALTITUDE':
       return {
