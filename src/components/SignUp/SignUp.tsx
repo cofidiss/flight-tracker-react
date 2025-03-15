@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer, useState } from "react";
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 import {
   Button,
   TextField,
@@ -12,10 +12,10 @@ import {
   FormControl,
   InputLabel,
   SelectChangeEvent,
-} from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { AppContext } from "../../contexts/AppContext";
-import { useNavigate } from "react-router-dom";
+} from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { AppContext } from '../../contexts/AppContext';
+import { useNavigate } from 'react-router-dom';
 
 const Signup: React.FC = () => {
   type FormState = {
@@ -29,17 +29,17 @@ const Signup: React.FC = () => {
   };
 
   type FormAction =
-    | { type: "SET_FIELD"; field: string; value: string }
-    | { type: "SET_ERROR"; error: string }
-    | { type: "CLEAR_ERROR" };
+    | { type: 'SET_FIELD'; field: string; value: string }
+    | { type: 'SET_ERROR'; error: string }
+    | { type: 'CLEAR_ERROR' };
 
   const initialState: FormState = {
-    username: "",
-    password: "",
-    confirmPassword: "",
-    address: "",
-    phone: "",
-    error: "",
+    username: '',
+    password: '',
+    confirmPassword: '',
+    address: '',
+    phone: '',
+    error: '',
     roleId: undefined,
   };
   type Role = {
@@ -48,20 +48,20 @@ const Signup: React.FC = () => {
   };
   const navigate = useNavigate();
   const baseUrl = process.env.REACT_APP_BASE_URL;
-  const { startLoading, stopLoading ,setIsLoggedIn} = useContext(AppContext);
+  const { startLoading, stopLoading, setIsLoggedIn } = useContext(AppContext);
   const [roleLov, setRoleLov] = useState<Role[]>([]);
 
   function formReducer(state: FormState, action: FormAction): FormState {
     switch (action.type) {
-      case "SET_FIELD":
-        if (action.field === "phone" && !/^\d+$/.test(action.value)) {
+      case 'SET_FIELD':
+        if (action.field === 'phone' && !/^\d+$/.test(action.value)) {
           return { ...state };
         }
         return { ...state, [action.field]: action.value };
-      case "SET_ERROR":
+      case 'SET_ERROR':
         return { ...state, error: action.error };
-      case "CLEAR_ERROR":
-        return { ...state, error: "" };
+      case 'CLEAR_ERROR':
+        return { ...state, error: '' };
       default:
         return state;
     }
@@ -69,31 +69,31 @@ const Signup: React.FC = () => {
 
   const getRoles = () => {
     fetch(`${baseUrl}/api/user/getRolelov`, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     })
       .then((response) => {
         if (response.ok) {
           return response.json().then((data) => {
             debugger;
-            setRoleLov(data );
+            setRoleLov(data);
             setSelectedRole(data[0].id.toString());
           });
         } else {
           response.text().then((x) =>
             dispatch({
-              type: "SET_ERROR",
-              error: x || "Signup unsuccessful",
-            })
+              type: 'SET_ERROR',
+              error: x || 'Signup unsuccessful',
+            }),
           );
         }
       })
       .catch(() => {
         dispatch({
-          type: "SET_ERROR",
-          error: "Connection error to server occurred",
+          type: 'SET_ERROR',
+          error: 'Connection error to server occurred',
         });
       })
       .finally(() => {
@@ -103,7 +103,7 @@ const Signup: React.FC = () => {
 
   const [state, dispatch] = useReducer(formReducer, initialState);
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<string>("");
+  const [selectedRole, setSelectedRole] = useState<string>('');
 
   const handlePasswordVisibilityToggle = () => {
     setShowPassword((prevShow) => !prevShow);
@@ -111,14 +111,14 @@ const Signup: React.FC = () => {
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (state.password !== state.confirmPassword) {
-      dispatch({ type: "SET_ERROR", error: "Passwords do not match!" });
+      dispatch({ type: 'SET_ERROR', error: 'Passwords do not match!' });
     } else {
-      dispatch({ type: "CLEAR_ERROR" });
+      dispatch({ type: 'CLEAR_ERROR' });
       startLoading();
       fetch(`${baseUrl}/api/user/signup`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           username: state.username,
@@ -130,22 +130,22 @@ const Signup: React.FC = () => {
       })
         .then((response) => {
           if (response.ok) {
-            console.log("Signup başarılı");
+            console.log('Signup başarılı');
             setIsLoggedIn(true);
-            navigate("/");
+            navigate('/');
           } else {
             response.text().then((x) =>
               dispatch({
-                type: "SET_ERROR",
-                error: x || "Signup unsuccessful",
-              })
+                type: 'SET_ERROR',
+                error: x || 'Signup unsuccessful',
+              }),
             );
           }
         })
         .catch(() => {
           dispatch({
-            type: "SET_ERROR",
-            error: "Connection error to server occurred",
+            type: 'SET_ERROR',
+            error: 'Connection error to server occurred',
           });
         })
         .finally(() => {
@@ -154,12 +154,11 @@ const Signup: React.FC = () => {
     }
   };
 
-useEffect(()=> getRoles(),[]);
-
+  useEffect(() => getRoles(), []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch({
-      type: "SET_FIELD",
+      type: 'SET_FIELD',
       field: e.target.name,
       value: e.target.value,
     });
@@ -195,7 +194,7 @@ useEffect(()=> getRoles(),[]);
           <TextField
             label="Password"
             name="password"
-            type={showPassword ? "text" : "password"}
+            type={showPassword ? 'text' : 'password'}
             value={state.password}
             onChange={handleChange}
             fullWidth
@@ -217,7 +216,7 @@ useEffect(()=> getRoles(),[]);
           <TextField
             label="Confirm Password"
             name="confirmPassword"
-            type={showPassword ? "text" : "password"}
+            type={showPassword ? 'text' : 'password'}
             value={state.confirmPassword}
             onChange={handleChange}
             fullWidth
@@ -269,7 +268,7 @@ useEffect(()=> getRoles(),[]);
             margin="normal"
             type="tel"
             inputProps={{
-              pattern: ".{10,10}",
+              pattern: '.{10,10}',
               maxLength: 10,
             }}
           />

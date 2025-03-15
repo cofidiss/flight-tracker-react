@@ -9,9 +9,7 @@ import {
 } from '@mui/material';
 import { CustomModalProps } from '../../models/models';
 
-
-
-const CustomModal: React.FC<PropsWithChildren< CustomModalProps>> = ({
+const CustomModal: React.FC<PropsWithChildren<CustomModalProps>> = ({
   isOpen,
   title,
   message,
@@ -21,51 +19,54 @@ const CustomModal: React.FC<PropsWithChildren< CustomModalProps>> = ({
   leftButtonClick,
   rightButtonText,
   rightButtonClick,
-  children
-
+  children,
 }) => {
-    // Validation check
-    if (okButtonText && (leftButtonText || rightButtonText)) {
-      throw new Error("If 'okButtonText' is provided, 'leftButtonText' and 'rightButtonText' must not be defined.");
-    }
+  // Validation check
+  if (okButtonText && (leftButtonText || rightButtonText)) {
+    throw new Error(
+      "If 'okButtonText' is provided, 'leftButtonText' and 'rightButtonText' must not be defined.",
+    );
+  }
   return (
-<Dialog open={isOpen}>
-  <div 
-    style={{ 
- 
-      display: "flex", 
-      flexDirection: "column", 
-      justifyContent: "space-between" 
-    }}
-  > 
-    {title && <DialogTitle>{title}</DialogTitle>}
-    <DialogContent>
-      {children}
-      {message && <Typography>{message}</Typography>}
-    </DialogContent>
-    <DialogActions style={{ justifyContent: "space-evenly" }}>
-      {okButtonText && (
-        <Button
-          onClick={okButtonClick}
-          sx={{ backgroundColor: "green", color: "white", "&:hover": { backgroundColor: "darkgreen" } }}
-        >
-          {okButtonText}
-        </Button>
-      )}
-      {leftButtonText && (
-        <Button onClick={leftButtonClick} color="primary">
-          {leftButtonText}
-        </Button>
-      )}
-      {rightButtonText && (
-        <Button onClick={rightButtonClick} color="primary">
-          {rightButtonText}
-        </Button>
-      )}
-    </DialogActions>
-  </div>
-</Dialog>
-
+    <Dialog open={isOpen}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+      >
+        {title && <DialogTitle>{title}</DialogTitle>}
+        <DialogContent>
+          {children}
+          {message && <Typography>{message}</Typography>}
+        </DialogContent>
+        <DialogActions style={{ justifyContent: 'space-evenly' }}>
+          {okButtonText && (
+            <Button
+              onClick={okButtonClick}
+              sx={{
+                backgroundColor: 'green',
+                color: 'white',
+                '&:hover': { backgroundColor: 'darkgreen' },
+              }}
+            >
+              {okButtonText}
+            </Button>
+          )}
+          {leftButtonText && (
+            <Button onClick={leftButtonClick} color="primary">
+              {leftButtonText}
+            </Button>
+          )}
+          {rightButtonText && (
+            <Button onClick={rightButtonClick} color="primary">
+              {rightButtonText}
+            </Button>
+          )}
+        </DialogActions>
+      </div>
+    </Dialog>
   );
 };
 

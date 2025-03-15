@@ -9,10 +9,13 @@ import MenuItem from '@mui/material/MenuItem';
 import Slider from '@mui/material/Slider';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import {  FlightCustomFilter, formState, SidebarProps } from '../../models/models';
+import {
+  FlightCustomFilter,
+  formState,
+  SidebarProps,
+} from '../../models/models';
 import { AppContext } from '../../contexts/AppContext';
 import InputAdornment from '@mui/material/InputAdornment';
-
 
 // Define the initial form state
 const initialState = {
@@ -20,18 +23,24 @@ const initialState = {
   altitudeMax: 40000,
   groundSpeedMin: 200,
   groundSpeedMax: 600,
-  category: ''
+  category: '',
 };
-
-
 
 // Define the reducer function
 const formReducer = (state: formState, action: any) => {
   switch (action.type) {
     case 'SET_ALTITUDE':
-      return { ...state, altitudeMin: action.payload.min, altitudeMax: action.payload.max };
+      return {
+        ...state,
+        altitudeMin: action.payload.min,
+        altitudeMax: action.payload.max,
+      };
     case 'SET_GROUND_SPEED':
-      return { ...state, groundSpeedMin: action.payload.min, groundSpeedMax: action.payload.max };
+      return {
+        ...state,
+        groundSpeedMin: action.payload.min,
+        groundSpeedMax: action.payload.max,
+      };
     case 'SET_CATEGORY':
       return { ...state, category: action.payload };
     case 'CLEAR_CATEGORY':
@@ -43,36 +52,32 @@ const formReducer = (state: formState, action: any) => {
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
-  const { startLoading, stopLoading, setIsLoggedIn,principalName } = useContext(AppContext);
+  const { startLoading, stopLoading, setIsLoggedIn, principalName } =
+    useContext(AppContext);
   // UseReducer hook to manage form state
   const [formState, dispatch] = useReducer(formReducer, initialState);
-  const sendFlightCustomFilterData = async ()=> {
-
-    
-
-  const FlightCustomFilter:FlightCustomFilter = {
-    altitudeMin: formState.altitudeMin,  
-    altitudeMax: formState.altitudeMax,
-    groundSpeedMin: formState.groundSpeedMin,
-    groundSpeedMax: formState.groundSpeedMax,
-    category: formState.category  ,
-    principalName: principalName
-  } 
-  var repsonse =  await fetch(`${baseUrl}/api/flight/live/filter`, {
-      method: "POST",
+  const sendFlightCustomFilterData = async () => {
+    const FlightCustomFilter: FlightCustomFilter = {
+      altitudeMin: formState.altitudeMin,
+      altitudeMax: formState.altitudeMax,
+      groundSpeedMin: formState.groundSpeedMin,
+      groundSpeedMax: formState.groundSpeedMax,
+      category: formState.category,
+      principalName: principalName,
+    };
+    var repsonse = await fetch(`${baseUrl}/api/flight/live/filter`, {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(FlightCustomFilter),
     });
 
     stopLoading();
-  
-  
-  }
+  };
   // Handle Save functionality
   const handleSave = () => {
-   sendFlightCustomFilterData();
+    sendFlightCustomFilterData();
     onClose(); // Close the sidebar after saving
   };
 
@@ -80,7 +85,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     <Drawer anchor="left" open={isOpen} onClose={onClose}>
       <div style={{ width: 250, padding: 16 }}>
         {/* Close Button at the top right */}
-        <IconButton onClick={onClose} style={{ position: 'absolute', right: 16, top: 16 }}>
+        <IconButton
+          onClick={onClose}
+          style={{ position: 'absolute', right: 16, top: 16 }}
+        >
           <CloseIcon />
         </IconButton>
 
@@ -93,7 +101,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               newValue = newValue as number[];
               dispatch({
                 type: 'SET_ALTITUDE',
-                payload: { min: newValue[0] as number, max: newValue[1] as number },
+                payload: {
+                  min: newValue[0] as number,
+                  max: newValue[1] as number,
+                },
               });
             }}
             valueLabelDisplay="auto"
@@ -113,7 +124,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               newValue = newValue as number[];
               dispatch({
                 type: 'SET_GROUND_SPEED',
-                payload: { min: newValue[0] as number, max: newValue[1] as number },
+                payload: {
+                  min: newValue[0] as number,
+                  max: newValue[1] as number,
+                },
               });
             }}
             valueLabelDisplay="auto"
@@ -155,8 +169,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <MenuItem value="H">H</MenuItem>
             <MenuItem value="P">P</MenuItem>
           </Select>
-
-
         </div>
 
         {/* Save Button */}

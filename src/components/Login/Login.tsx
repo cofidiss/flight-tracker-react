@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext } from 'react';
 import {
   Container,
   Box,
@@ -9,16 +9,16 @@ import {
   Link,
   IconButton,
   InputAdornment,
-} from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
-import { AppContext } from "../../contexts/AppContext";
-import "../../styles/global.css";
+} from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { AppContext } from '../../contexts/AppContext';
+import '../../styles/global.css';
 
 const Login: React.FC = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const baseUrl = process.env.REACT_APP_BASE_URL;
@@ -28,58 +28,50 @@ const Login: React.FC = () => {
     setShowPassword((prevShow) => !prevShow);
   };
   const getUserRole = () => {
-
     startLoading();
-    setError("");
-  
+    setError('');
+
     fetch(`${baseUrl}/api/user/getUserRoles`, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
-      }
+        'Content-Type': 'application/json',
+      },
     })
       .then((response) => {
         if (response.ok) {
-
-       
         } else {
-          return response.text().then(() =>
-            setError("Login is unsuccessful.")
-          );
+          return response.text().then(() => setError('Login is unsuccessful.'));
         }
       })
       .catch(() => {
-        setError("Login is unsuccessful.");
+        setError('Login is unsuccessful.');
       })
       .finally(() => {
         stopLoading();
       });
-  
-  }
+  };
   const handleLogin = () => {
     startLoading();
-    setError("");
+    setError('');
 
     fetch(`${baseUrl}/api/user/login`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({ username, password }),
     })
       .then((response) => {
         if (response.ok) {
-          console.log("Giriş başarılı");
+          console.log('Giriş başarılı');
           setIsLoggedIn(true);
-          navigate("/");
+          navigate('/');
         } else {
-          return response.text().then(() =>
-            setError("Login is unsuccessful.")
-          );
+          return response.text().then(() => setError('Login is unsuccessful.'));
         }
       })
       .catch(() => {
-        setError("Login is unsuccessful.");
+        setError('Login is unsuccessful.');
       })
       .finally(() => {
         stopLoading();
@@ -113,17 +105,14 @@ const Login: React.FC = () => {
           variant="outlined"
           fullWidth
           margin="normal"
-          type={showPassword ? "text" : "password"}
+          type={showPassword ? 'text' : 'password'}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton
-                  onClick={handlePasswordVisibilityToggle}
-                  edge="end"
-                >
+                <IconButton onClick={handlePasswordVisibilityToggle} edge="end">
                   {showPassword ? <VisibilityOff /> : <Visibility />}
                 </IconButton>
               </InputAdornment>

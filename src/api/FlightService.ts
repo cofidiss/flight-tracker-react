@@ -1,11 +1,3 @@
-
-
-
-function FlightService(){
-
-
-
-}
-
+function FlightService() {}
 
 export default FlightService;

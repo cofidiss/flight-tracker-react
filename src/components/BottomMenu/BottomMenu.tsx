@@ -14,7 +14,7 @@ const BottomMenu: React.FC<BottomMenuProps> = ({ onMenuClick }) => {
         width: '100%',
         zIndex: 1000,
         display: 'flex',
-        justifyContent: 'center',  // Center the content
+        justifyContent: 'center', // Center the content
       }}
     >
       <BottomNavigationAction

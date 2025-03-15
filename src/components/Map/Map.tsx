@@ -17,12 +17,10 @@ const MapComponent: React.FC = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [flights, setFlights] = useState<FlightData | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const {  userRole,principalName,setPrincipalName } = useContext(AppContext);
+  const { userRole, principalName, setPrincipalName } = useContext(AppContext);
   const baseUrl = process.env.REACT_APP_BASE_URL;
-  
+
   const stompClientRef = useRef<Client | null>(null);
-
-
 
   // İlk useEffect: stompClient'ı oluştur ve bağlantıyı etkinleştir
 
@@ -32,96 +30,94 @@ const MapComponent: React.FC = () => {
     const stompClient = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
-      
     });
-console.log("socketUrl" + socketUrl);
+    console.log('socketUrl' + socketUrl);
     stompClientRef.current = stompClient;
 
     stompClient.onConnect = () => {
+      console.log('Connected to WebSocket');
 
-      console.log("Connected to WebSocket");
+      console.log('stompClient.activate');
 
-      console.log("stompClient.activate");
-
-  
       // getSessionIdiçin abone ol
-      stompClient.subscribe("/user/topic/getSessionId", (messageOutput) => {
+      stompClient.subscribe('/user/topic/getSessionId', (messageOutput) => {
         try {
-          console.log("stompClient. getSessionId" + messageOutput.body  );
-         setPrincipalName(messageOutput.body);
-          
+          console.log('stompClient. getSessionId' + messageOutput.body);
+          setPrincipalName(messageOutput.body);
         } catch (error) {
-          console.error("getSessionId error:", error, messageOutput.body);
+          console.error('getSessionId error:', error, messageOutput.body);
         }
-        stompClient.unsubscribe("/topic/getSessionId")
+        stompClient.unsubscribe('/topic/getSessionId');
       });
-
-
-        
- 
-
 
       // Live flight verileri için abone ol
-      stompClient.subscribe("/user/topic/liveflight", (messageOutput) => {
+      stompClient.subscribe('/user/topic/liveflight', (messageOutput) => {
         try {
-          console.log("stompClient.subscribe");
+          console.log('stompClient.subscribe');
           const flightData = JSON.parse(messageOutput.body);
-          console.log("Live flight data:", flightData);
+          console.log('Live flight data:', flightData);
           setFlights(flightData);
         } catch (error) {
-          console.error("JSON parse error:", error, messageOutput.body);
+          console.error('JSON parse error:', error, messageOutput.body);
         }
       });
 
-         // İlk filtre gönderimi
-         if (mapRef.current) {
-          let curentBounds = mapRef.current.getBounds();
-          console.log("curentBounds",curentBounds);
-          sendflightCoordinateRangeFilterData(stompClient, {latitudeMax: curentBounds.getNorthEast().lat, 
-            latitudeMin: curentBounds.getSouthWest().lat,
-            longitudeMax: curentBounds.getNorthEast().lng,
-            longitudeMin: curentBounds.getSouthWest().lng});
-        }
-        stompClient.publish({
-          destination: '/app/getSessionId'
+      // İlk filtre gönderimi
+      if (mapRef.current) {
+        let curentBounds = mapRef.current.getBounds();
+        console.log('curentBounds', curentBounds);
+        sendflightCoordinateRangeFilterData(stompClient, {
+          latitudeMax: curentBounds.getNorthEast().lat,
+          latitudeMin: curentBounds.getSouthWest().lat,
+          longitudeMax: curentBounds.getNorthEast().lng,
+          longitudeMin: curentBounds.getSouthWest().lng,
         });
-    
+      }
+      stompClient.publish({
+        destination: '/app/getSessionId',
+      });
     };
     stompClient.activate();
     return () => {
-      console.log("Disconnected from WebSocket");
+      console.log('Disconnected from WebSocket');
       stompClient.deactivate();
     };
-  }, []); 
+  }, []);
 
-
-
-
-  function sendflightCoordinateRangeFilterData(stompClient: Client | null, filter: FlightCoordinateRangeFilter | null) {
-    if ( filter == null || stompClient == null || stompClient.connected == false) {
-      return;}
-    console.log("sendflightCoordinateRangeFilterData");
+  function sendflightCoordinateRangeFilterData(
+    stompClient: Client | null,
+    filter: FlightCoordinateRangeFilter | null,
+  ) {
+    if (
+      filter == null ||
+      stompClient == null ||
+      stompClient.connected == false
+    ) {
+      return;
+    }
+    console.log('sendflightCoordinateRangeFilterData');
     stompClient.publish({
       destination: '/app/live',
-      body: JSON.stringify( filter )
+      body: JSON.stringify(filter),
     });
   }
 
   const handleBoundsChange = (bounds: L.LatLngBounds) => {
-    const latitudeMax = bounds.getNorthEast().lat;  // Maksimum enlem
-    const latitudeMin = bounds.getSouthWest().lat;  // Minimum enlem
+    const latitudeMax = bounds.getNorthEast().lat; // Maksimum enlem
+    const latitudeMin = bounds.getSouthWest().lat; // Minimum enlem
     const longitudeMax = bounds.getNorthEast().lng; // Maksimum boylam
     const longitudeMin = bounds.getSouthWest().lng; // Minimum boylam
-    
-    console.log("Latitude Max:", latitudeMax);
-    console.log("Latitude Min:", latitudeMin);
-    console.log("Longitude Max:", longitudeMax);
-    console.log("Longitude Min:", longitudeMin);
-    sendflightCoordinateRangeFilterData(stompClientRef.current, {latitudeMax: latitudeMax, 
-      latitudeMin: latitudeMin,
-       longitudeMax: longitudeMax,
-        longitudeMin: longitudeMin});
 
+    console.log('Latitude Max:', latitudeMax);
+    console.log('Latitude Min:', latitudeMin);
+    console.log('Longitude Max:', longitudeMax);
+    console.log('Longitude Min:', longitudeMin);
+    sendflightCoordinateRangeFilterData(stompClientRef.current, {
+      latitudeMax: latitudeMax,
+      latitudeMin: latitudeMin,
+      longitudeMax: longitudeMax,
+      longitudeMin: longitudeMin,
+    });
   };
 
   function MapEvents() {
@@ -137,9 +133,11 @@ console.log("socketUrl" + socketUrl);
   }
 
   return (
-    <div className='asde'>
-      {userRole == "PremiumUser" ? (   <BottomMenu onMenuClick={()=> setSidebarOpen(true)} />) : null}
-   < Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <div className="asde">
+      {userRole == 'PremiumUser' ? (
+        <BottomMenu onMenuClick={() => setSidebarOpen(true)} />
+      ) : null}
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <MapContainer
         center={[42.3, 32.2]}
@@ -148,13 +146,11 @@ console.log("socketUrl" + socketUrl);
         style={{ height: '100vh', width: '100%' }}
         ref={mapRef}
       >
-
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <MapEvents />
         {flights?.data.map((flight) => (
           <FlightMarker key={flight.flightId} flightDataItem={flight} />
         ))}
-
       </MapContainer>
     </div>
   );
