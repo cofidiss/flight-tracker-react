@@ -161,7 +161,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             }}
           >
             <MenuItem value="">
-              <em>Hiçbiri</em>
+              <em>All</em>
             </MenuItem>
             <MenuItem value="H">Helicopter</MenuItem>
             <MenuItem value="P">Plane</MenuItem>

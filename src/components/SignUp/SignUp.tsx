@@ -58,7 +58,7 @@ const Signup: React.FC = () => {
   }
 
   const getRoles = () => {
-    fetch(`${baseUrl}/api/user/getRolelov`, {
+    fetch(`${baseUrl}/api/user/getRoleLov`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

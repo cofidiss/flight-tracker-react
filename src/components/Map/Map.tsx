@@ -1,106 +1,92 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import Navbar from '../Navbar/Navbar';
 import Sidebar from '../Sidebar/Sidebar';
 import BottomMenu from '../BottomMenu/BottomMenu';
-import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import FlightMarker from './FlightMarker';
 import { FlightCoordinateRangeFilter, FlightData } from '../../models/models';
 import { AppContext } from '../../contexts/AppContext';
 import { Map } from 'leaflet';
+import {
+  connectToFlightStream,
+  sendflightCoordinateRangeFilterData,
+} from '../../services/flighDataService';
 
 const MapComponent: React.FC = () => {
   const mapRef = useRef<L.Map | null>(null);
-
+  console.log('MapComponent renderer');
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [flights, setFlights] = useState<FlightData | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const { userRole, principalName, setPrincipalName } = useContext(AppContext);
+  const { userRole, principalName, setPrincipalName ,isLoggedIn} = useContext(AppContext);
   const baseUrl = process.env.REACT_APP_BASE_URL;
-
+  const navigate = useNavigate();
   const stompClientRef = useRef<Client | null>(null);
-
+  console.log('MapComponent renderer', stompClientRef.current);
   // İlk useEffect: stompClient'ı oluştur ve bağlantıyı etkinleştir
 
   useEffect(() => {
-    const socketUrl = `${baseUrl}/ws`;
-    const socket = new SockJS(socketUrl);
-    const stompClient = new Client({
-      webSocketFactory: () => socket,
-      reconnectDelay: 5000,
-    });
-    console.log('socketUrl' + socketUrl);
-    stompClientRef.current = stompClient;
+    if (!isLoggedIn) {
+      navigate('/login');
+      return undefined;
+    }
 
-    stompClient.onConnect = () => {
-      console.log('Connected to WebSocket');
-
-      console.log('stompClient.activate');
-
-      // getSessionIdiçin abone ol
-      stompClient.subscribe('/user/topic/getSessionId', (messageOutput) => {
-        try {
-          console.log('stompClient. getSessionId' + messageOutput.body);
-          setPrincipalName(messageOutput.body);
-        } catch (error) {
-          console.error('getSessionId error:', error, messageOutput.body);
+    const cleanup = connectToFlightStream({
+      baseUrl,
+      stompClientRef,
+      onSessionIdReceived: (sessionId) => {
+        setPrincipalName(sessionId);
+      },
+      onFlightsReceived: (flightData) => {
+        setFlights(flightData);
+      },
+      onInitialFilterSend: (stompClient) => {
+        if (!mapRef.current) {
+          return;
         }
-        stompClient.unsubscribe('/topic/getSessionId');
-      });
 
-      // Live flight verileri için abone ol
-      stompClient.subscribe('/user/topic/liveflight', (messageOutput) => {
-        try {
-          console.log('stompClient.subscribe');
-          const flightData = JSON.parse(messageOutput.body);
-          console.log('Live flight data:', flightData);
-          setFlights(flightData);
-        } catch (error) {
-          console.error('JSON parse error:', error, messageOutput.body);
-        }
-      });
-
-      // İlk filtre gönderimi
-      if (mapRef.current) {
-        let curentBounds = mapRef.current.getBounds();
-        console.log('curentBounds', curentBounds);
+        const currentBounds = mapRef.current.getBounds();
+        console.log('currentBounds', currentBounds);
         sendflightCoordinateRangeFilterData(stompClient, {
-          latitudeMax: curentBounds.getNorthEast().lat,
-          latitudeMin: curentBounds.getSouthWest().lat,
-          longitudeMax: curentBounds.getNorthEast().lng,
-          longitudeMin: curentBounds.getSouthWest().lng,
+          latitudeMax: currentBounds.getNorthEast().lat,
+          latitudeMin: currentBounds.getSouthWest().lat,
+          longitudeMax: currentBounds.getNorthEast().lng,
+          longitudeMin: currentBounds.getSouthWest().lng,
         });
-      }
-      stompClient.publish({
-        destination: '/app/getSessionId',
-      });
-    };
-    stompClient.activate();
-    return () => {
-      console.log('Disconnected from WebSocket');
-      stompClient.deactivate();
-    };
+      },
+      onError: (error) => {
+        console.error('WebSocket connection error:', error);
+      },
+    });
+
+    return cleanup;
   }, []);
 
-  function sendflightCoordinateRangeFilterData(
-    stompClient: Client | null,
-    filter: FlightCoordinateRangeFilter | null,
-  ) {
-    if (
-      filter == null ||
-      stompClient == null ||
-      stompClient.connected == false
-    ) {
-      return;
-    }
-    console.log('sendflightCoordinateRangeFilterData');
-    stompClient.publish({
-      destination: '/app/live',
-      body: JSON.stringify(filter),
-    });
-  }
+
+  useEffect(() => {
+    const refreshMap = () => {
+      if (!mapRef.current) {
+        return;
+      }
+
+      mapRef.current.invalidateSize();
+      window.setTimeout(() => mapRef.current?.invalidateSize(), 100);
+      window.setTimeout(() => mapRef.current?.invalidateSize(), 400);
+    };
+
+    refreshMap();
+    window.addEventListener('resize', refreshMap);
+
+    const frame = window.requestAnimationFrame(refreshMap);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('resize', refreshMap);
+    };
+  }, []);
 
   const handleBoundsChange = (bounds: L.LatLngBounds) => {
     const latitudeMax = bounds.getNorthEast().lat; // Maksimum enlem
@@ -131,9 +117,30 @@ const MapComponent: React.FC = () => {
     }, [map]);
     return null;
   }
+function MapResizeHandler() {
+  const map = useMap();
 
+  useEffect(() => {
+    const resizeMap = () => {
+      map.invalidateSize({ animate: false });
+    };
+
+    // İlk render sonrasında
+    setTimeout(resizeMap, 100);
+    setTimeout(resizeMap, 500);
+    setTimeout(resizeMap, 1000);
+
+    window.addEventListener('resize', resizeMap);
+
+    return () => {
+      window.removeEventListener('resize', resizeMap);
+    };
+  }, [map]);
+
+  return null;
+}
   return (
-    <div className="asde">
+ <div className="asde">
       {userRole == 'PremiumUser' ? (
         <BottomMenu onMenuClick={() => setSidebarOpen(true)} />
       ) : null}

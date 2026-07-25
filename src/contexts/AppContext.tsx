@@ -137,10 +137,9 @@ export const AppProvider: React.FC<PropsWithChildren> = ({ children }) => {
         }}
       >
         <Navbar />
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
+
           {children}
-        </ThemeProvider>
+  
         <Backdrop
           sx={{
             color: '#fff',
