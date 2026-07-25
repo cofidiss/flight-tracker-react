@@ -176,7 +176,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           color="primary"
           fullWidth
         >
-          Kaydet
+          Save
         </Button>
       </div>
     </Drawer>
