@@ -1,6 +1,81 @@
-# Getting Started with Create React App
+# Flight Tracker
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A real-time flight tracking web application built with React. It displays live aircraft positions on an interactive map, differentiating between airplanes and helicopters, and supports user authentication with role-based access.
+
+## Features
+
+- Real-time flight data streaming via WebSocket (STOMP protocol)
+- Interactive map with airplane and helicopter markers
+- Flight detail popups (flight number, altitude, speed)
+- Map boundary-based filtering — only flights within the current view are streamed
+- User authentication (Login / Sign Up)
+- Role-based access control
+- Responsive UI with sidebar and bottom menu
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | React 18 + TypeScript |
+| Map | Leaflet, React-Leaflet |
+| Real-time | STOMP.js, SockJS (WebSocket) |
+| UI Components | Material UI (MUI v6) |
+| Routing | React Router DOM v6 |
+| Date Handling | Day.js, date-fns |
+| Containerization | Docker, Nginx (multi-stage build) |
+| Orchestration | Docker Compose |
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 20+
+- npm
+
+### Install & Run
+
+```bash
+npm install
+npm start
+```
+
+App runs at [http://localhost:3000](http://localhost:3000).
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+REACT_APP_BASE_URL=http://your-backend-url
+```
+
+## Docker
+
+Build and run with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+The app will be served by Nginx on port `3000`.
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── Map/          # Map view, flight markers
+│   ├── Login/        # Login page
+│   ├── SignUp/       # Sign up page
+│   ├── Navbar/       # Top navigation bar
+│   ├── Sidebar/      # Flight filter sidebar
+│   ├── BottomMenu/   # Bottom action menu
+│   └── CustomModal/  # Reusable modal component
+├── contexts/         # App-wide state (AppContext)
+├── models/           # TypeScript interfaces
+├── services/         # WebSocket / flight data service
+└── styles/           # Global CSS
+```
 
 ## Available Scripts
 
