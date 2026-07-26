@@ -3,7 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: flight-tracker -react:latest
+    image: flight-tracker-react:latest
     ports:
       - "3000:80"
-    
